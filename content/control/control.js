@@ -1,28 +1,26 @@
-// Frank Poth 08/13/2017
+var ctx, kontroller, rektangel, loop;
 
-var context, controller, rectangle, loop;
+ctx = document.querySelector("canvas").getContext("2d");
 
-context = document.querySelector("canvas").getContext("2d");
+ctx.canvas.height = 500;
+ctx.canvas.width = 900;
 
-context.canvas.height = 180;
-context.canvas.width = 320;
+rektangel = {
 
-rectangle = {
-
-  height:32,
+  height: 32,
   jumping:true,
-  width:32,
-  x:144, // center of the canvas
-  x_velocity:0,
-  y:0,
-  y_velocity:0
+  width: 32,
+  x: 144, 
+  x_fart: 0,
+  y: 0,
+  y_fart: 0
 
 };
 
-controller = {
+kontroller = {
 
   left:false,
-  right:false,
+  hoyre:false,
   up:false,
   keyListener:function(event) {
 
@@ -30,14 +28,14 @@ controller = {
 
     switch(event.keyCode) {
 
-      case 37:// left key
-        controller.left = key_state;
+      case 37:// venstre key
+        kontroller.left = key_state;
       break;
-      case 38:// up key
-        controller.up = key_state;
+      case 38:// opp key
+        kontroller.up = key_state;
       break;
-      case 39:// right key
-        controller.right = key_state;
+      case 39:// høyre key
+        kontroller.hoyre = key_state;
       break;
 
     }
@@ -46,71 +44,54 @@ controller = {
 
 };
 
+
 loop = function() {
 
-  if (controller.up && rectangle.jumping == false) {
-
-    rectangle.y_velocity -= 20;
-    rectangle.jumping = true;
-
+if (kontroller.up && rektangel.jumping == false) {
+    rektangel.y_fart -= 28;
+    rektangel.jumping = true;
   }
 
-  if (controller.left) {
-
-    rectangle.x_velocity -= 0.5;
-
+if (kontroller.left) {
+  rektangel.x_fart -= 0.5;
   }
 
-  if (controller.right) {
-
-    rectangle.x_velocity += 0.5;
-
+if (kontroller.hoyre) {
+  rektangel.x_fart += 0.5;
   }
 
-  rectangle.y_velocity += 1.5;// gravity
-  rectangle.x += rectangle.x_velocity;
-  rectangle.y += rectangle.y_velocity;
-  rectangle.x_velocity *= 0.9;// friction
-  rectangle.y_velocity *= 0.9;// friction
+rektangel.y_fart += 1.5;// gravitasjon
+rektangel.x += rektangel.x_fart;
+rektangel.y += rektangel.y_fart;
+rektangel.x_fart *= 0.9;// friksjon
+rektangel.y_fart *= 0.9;// friksjon (luft)
 
-  // if rectangle is falling below floor line
-  if (rectangle.y > 180 - 16 - 32) {
+  // hvis rektangel faller forbi nedre grense 
+if (rektangel.y > 500 - 16 - 32) {
+  rektangel.jumping = false;
+  rektangel.y = 500 - 16 - 32;
+  rektangel.y_fart = 0;
+}
 
-    rectangle.jumping = false;
-    rectangle.y = 180 - 16 - 32;
-    rectangle.y_velocity = 0;
+// hvis rektangel går forbi left grense
+if (rektangel.x < -32) {
+  rektangel.x = 900;
+} else if (rektangel.x > 900) {// hvis rektangel går forbi hoyre grense
+  rektangel.x = -32;
+}
 
-  }
+ctx.fillStyle = "#202020"; // 
+ctx.fillRect(0, 0, 900, 500);// x, y, width, height
+ctx.fillStyle = "#ff00f0";// hex for rød
+ctx.beginPath();
+ctx.rect(rektangel.x, rektangel.y, rektangel.width, rektangel.height);
+ctx.fill();
 
-  // if rectangle is going off the left of the screen
-  if (rectangle.x < -32) {
-
-    rectangle.x = 320;
-
-  } else if (rectangle.x > 320) {// if rectangle goes past right boundary
-
-    rectangle.x = -32;
-
-  }
-
-  context.fillStyle = "#202020";
-  context.fillRect(0, 0, 320, 180);// x, y, width, height
-  context.fillStyle = "#ff0000";// hex for red
-  context.beginPath();
-  context.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-  context.fill();
-  context.strokeStyle = "#202830";
-  context.lineWidth = 4;
-  context.beginPath();
-  context.moveTo(0, 164);
-  context.lineTo(320, 164);
-  context.stroke();
-
-  // call update when the browser is ready to draw again
-  window.requestAnimationFrame(loop);
+// kaller oppdater når siden er klar for tegne igjen
+window.requestAnimationFrame(loop);
 
 };
 
-window.addEventListener("keydown", controller.keyListener)
-window.addEventListener("keyup", controller.keyListener);
+window.addEventListener("keydown", kontroller.keyListener)
+window.addEventListener("keyup", kontroller.keyListener);
 window.requestAnimationFrame(loop);
